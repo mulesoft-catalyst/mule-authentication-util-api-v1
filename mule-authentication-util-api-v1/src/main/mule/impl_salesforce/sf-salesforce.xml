@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<sub-flow name="sf-salesforce:get-salesforce-access-token" doc:id="492bdadd-9b97-4384-8c5e-5277156be3c4" >
+		<ee:transform doc:name="Prepare Token Parameters" doc:id="795f8fb7-13e0-40c9-b04f-5fadea836aa0" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/x-www-form-urlencoded
+---
+{
+	"grant_type": "urn:ietf:params:oauth:grant-type:jwt-bearer",
+	"assertion": payload
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<http:request method="POST" doc:name="Invoke Salesforce Token Endpoint" doc:id="afb136ce-6ec5-4ddc-9900-cb233a323cc6" config-ref="Salesforce_HTTPS_Request_configuration" path="/oauth2/token">
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	"Content-Type" : "application/x-www-form-urlencoded"
+}]]]></http:headers>
+		</http:request>
+	</sub-flow>
+</mule>

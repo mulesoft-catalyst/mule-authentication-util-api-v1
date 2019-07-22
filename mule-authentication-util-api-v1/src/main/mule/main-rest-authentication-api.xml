@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd ">
+    <flow name="main-rest-authentication-api">
+        <http:listener config-ref="authenticationapi-httpListenerConfig" path="/api/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <set-variable value="#[attributes.headers.'x-correlation-id']" doc:name="Save Correlation Id" doc:id="d2d61fe6-f823-4908-beec-24696e36b8e8" variableName="correlationId"/>
+		<apikit:router config-ref="authenticationapi-config" />
+        <error-handler ref="REST_Error_Handler"/>
+    </flow>
+    <flow name="authenticationapi-console">
+        <http:listener config-ref="authenticationapi-httpListenerConfig" path="/console/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:console config-ref="authenticationapi-config" />
+        <error-handler ref="REST_Error_Handler"/>
+    </flow>
+    <flow name="get:\oauth2\token:authenticationapi-config">
+		<flow-ref doc:name="main-impl-token:get-oauth2-token" doc:id="2ffd722a-e4bf-420e-a2c3-813846697446" name="main-impl-token:get-oauth2-token"/>
+    </flow>
+</mule>

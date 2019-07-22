@@ -1,0 +1,41 @@
+#%RAML 1.0
+title: Authentication Utility API
+version: v1
+baseUri: https://dev.api.iagsatellite.com.au/{version}
+mediaType: application/json
+
+# Common Behaviours
+traits:
+  compliant: !include exchange_modules/a76b11d7-b733-4d60-b329-c05d18a8953e/common-traits/1.0.6/compliant.raml
+  header: !include exchange_modules/a76b11d7-b733-4d60-b329-c05d18a8953e/common-traits/1.0.6/header.raml
+
+types:
+  TokenResponse: !include dataTypes/tokenResponse.raml
+
+securitySchemes:
+  client_credentials: 
+    description: |
+      Client credentials required for authenticating all API requests.
+    type: x-client-credentials
+    describedBy:
+      headers:
+        client_id: 
+          type: string
+          minLength: 1
+        client_secret:
+          type: string
+          minLength: 1
+
+/oauth2/token:
+  is: [header,compliant]
+  description: Retrieve an OAuth 2.0 JWT Token
+  securedBy: [client_credentials]
+  get:
+    responses:
+      200:
+        description: A list of available payment methods for the supplied customer.
+        body:
+          application/json:
+            type: TokenResponse
+            example: !include examples/getTokenResponse.json
+    

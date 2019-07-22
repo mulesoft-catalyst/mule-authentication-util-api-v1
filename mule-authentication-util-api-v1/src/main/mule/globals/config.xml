@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties"
+	xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway"
+	xmlns:tls="http://www.mulesoft.org/schema/mule/tls"
+	xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd 
+http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd 
+http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd">
+	<http:listener-config name="authenticationapi-httpListenerConfig">
+        <http:listener-connection host="0.0.0.0" port="${https.private.port}" protocol="HTTPS">
+			<tls:context >
+				<tls:key-store type="jks" path="${https.keystore.path}" alias="${https.keystore.alias}" keyPassword="${secure::https.keystore.password}" password="${secure::https.keystore.password}"/>
+			</tls:context>
+		</http:listener-connection>
+    </http:listener-config>
+    <apikit:config name="authenticationapi-config" raml="authenticationapi.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+    <configuration-properties doc:name="Configuration properties" doc:id="3d27b5f1-e2d4-4f9f-b3e0-57222c425a92" file="properties/${mule.env}-properties.yaml" />
+	<global-property doc:name="Global Property" doc:id="775b89c1-64f7-465f-acf1-3d490dd4514f" name="mule.env" value="prod" />
+	<global-property doc:name="Global Property" doc:id="758e09bd-1c20-4e6d-9472-1731b0b19ae7" name="enc.key" value='""' />
+	<!--  <api-gateway:autodiscovery apiId="${authentication.api.id}" doc:name="API Autodiscovery" doc:id="4a0edfb7-96b3-4853-a854-5f488c629eea" flowRef="main-rest-authentication-api" /> -->
+	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="76d4be46-ffb3-4ddf-b03e-3f4a7bedcc2c" file="properties/${mule.env}-properties.yaml" key="${enc.key}"/>
+	<http:request-config name="Salesforce_HTTPS_Request_configuration" doc:name="HTTP Request configuration" doc:id="860c4d7a-2551-4ea5-b741-df49f3dbdf30" basePath="${salesforce.https.base.path}" responseTimeout="${salesforce.https.response.timeout}">
+		<http:request-connection protocol="HTTPS" host="${salesforce.https.host}" port="${salesforce.https.port}" />
+	</http:request-config>
+	<api-gateway:autodiscovery apiId="${authentication.api.id}" doc:name="API Autodiscovery" doc:id="7e4a105e-43a6-4d93-a877-16e98da6eca7" flowRef="main-rest-authentication-api" />
+</mule>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<sub-flow name="error-handler-rest-exception" doc:id="1b7c522e-d249-4d55-80df-e2a15dd03916" >
+		<set-variable value='#[if(error.exception != null and error.exception.cause != null and error.exception.cause.target !=null) error.exception.cause.target.message 
+else if (error.errorMessage.payload.error_description != null) error.errorMessage.payload.error_description 
+else error.detailedDescription]' doc:name="Set Additional Details Variable" doc:id="5b013bf2-2f05-42da-92ca-5fa4a26ef74a" variableName="additionalDetails"/>
+		<logger level="ERROR" doc:name="Log Error" doc:id="e7fb4399-721c-4b43-bf9a-fd9fcc5f9419" message="#[vars.correlationId] - #[vars.partner] - #[vars.additionalDetails] - Payload is: #[error.errorMessage.payload]"/>
+		<ee:transform doc:name="Map JSON Error Response" doc:id="fcc677ab-9d4c-4e12-ad09-1948fe62019e">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  "code": "ERROR",
+  "description": error.description,
+  "correlationId": vars.correlationId,
+  "additionalDetails": vars.additionalDetails
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</sub-flow>
+	<error-handler name="REST_Error_Handler">
+            <on-error-propagate type="APIKIT:BAD_REQUEST, HTTP:BAD_REQUEST" doc:name="On Error Propagate" enableNotifications="true" logException="true">
+			<set-variable value="400" doc:name="Set httpStatus" doc:id="e26a430a-0a4d-455e-8ffa-15e5763487b8" variableName="httpStatus"/>
+			<flow-ref doc:name="error-handler-rest-exception" doc:id="22709cbe-1f38-4130-ae60-2e27fa645817" name="error-handler-rest-exception"/>
+            </on-error-propagate>
+            <on-error-propagate type="HTTP:UNAUTHORIZED" doc:name="On Error Propagate" enableNotifications="true" logException="true">
+                <set-variable value="401" doc:name="Set httpStatus" doc:id="a05e4fc4-c102-402e-8228-dbb276d193e0" variableName="httpStatus"/>
+			<flow-ref doc:name="error-handler-rest-exception" doc:id="8fe363b1-5a99-4ba5-8a34-24ca84282bc8" name="error-handler-rest-exception"/>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_FOUND" doc:name="On Error Propagate" enableNotifications="true" logException="true">
+                <set-variable value="404" doc:name="Set httpStatus" doc:id="d8e0ebc4-4d8d-405b-a87b-f486a489708e" variableName="httpStatus"/>
+			<flow-ref doc:name="error-handler-rest-exception" doc:id="d85dd0e6-e22d-42f6-9637-aa6dfa4e9b8d" name="error-handler-rest-exception"/>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:METHOD_NOT_ALLOWED">
+                <set-variable value="405" doc:name="Set httpStatus" doc:id="4a5260c7-6d9f-431c-a80b-f7ba42a7c140" variableName="httpStatus"/>
+			<flow-ref doc:name="error-handler-rest-exception" doc:id="720d35b9-1048-461f-857e-209670e67046" name="error-handler-rest-exception"/>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_ACCEPTABLE">
+                <set-variable value="406" doc:name="Set httpStatus" doc:id="c3f6e204-43ed-468b-a8e1-7d319e111af3" variableName="httpStatus"/>
+			<flow-ref doc:name="error-handler-rest-exception" doc:id="f237f08f-41a0-4a83-bd01-4c53d91a5c96" name="error-handler-rest-exception"/>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:UNSUPPORTED_MEDIA_TYPE">
+                <set-variable value="415" doc:name="Set httpStatus" doc:id="870dd6df-6da3-4a8f-8d2a-8e5287edcf7f" variableName="httpStatus"/>
+			<flow-ref doc:name="error-handler-rest-exception" doc:id="b5f5500a-7756-4548-aa1a-efc2934f94ea" name="error-handler-rest-exception"/>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_IMPLEMENTED">
+                <set-variable value="501" doc:name="Set httpStatus" doc:id="8a18ae0d-abd7-415a-82a2-164a7b506e60" variableName="httpStatus"/>
+			<flow-ref doc:name="error-handler-rest-exception" doc:id="fd8ba521-c0b4-42b1-a2c1-172dfd9ee661" name="error-handler-rest-exception"/>
+            </on-error-propagate>
+            <on-error-propagate type="HTTP:INTERNAL_SERVER_ERROR, HTTP:CONNECTIVITY, JAVA:INVOCATION" enableNotifications="true" logException="true">
+                <set-variable value="500" doc:name="Set httpStatus" doc:id="5831cd76-dd39-45e0-ac16-31a785b6ad7e" variableName="httpStatus"/>
+			<flow-ref doc:name="error-handler-rest-exception" doc:id="a42fa72c-0e2e-40ed-b07b-bd8120ee065b" name="error-handler-rest-exception"/>
+			</on-error-propagate>
+        </error-handler>
+</mule>

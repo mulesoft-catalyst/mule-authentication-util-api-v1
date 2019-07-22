@@ -1,0 +1,26 @@
+#HTTP Configuration
+https:
+  private.port: "8082"
+  keystore.path: "keystores/authentication-util-api-keystore.jks"
+  keystore.alias: "selfsigned"
+  keystore.password: "password"
+
+#Salesforce HTTPS Configuration
+salesforce:
+  https.host: "login.salesforce.com"
+  https.port: "443"
+  https.base.path: "/services"
+  https.response.timeout: "10000"
+  
+#Salesforce JWT Configuration
+jwt:
+  #Salesforce User, i.e. integration user integration.user@salesforce.com
+  user: "changeit"
+  keystore: "keystores/salesforce/changeit.jks"
+  keystore.alias: "changeit"
+  keystore.password: "changeit"
+  keystore.key.password: "changeit"
+  
+#API Autodiscovery configuration
+authentication.api:
+  id: "changeit"

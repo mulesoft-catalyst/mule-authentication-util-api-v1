@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:java="http://www.mulesoft.org/schema/mule/java" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
+	<flow name="main-impl-token:get-oauth2-token" doc:id="7e979d11-eb8a-49de-8231-329ef3b5240e" >
+		<logger level="INFO" doc:name="Log Start" doc:id="15973d07-b782-4b28-9481-5167ca05bcf8" message="#[vars.correlationId] - #[vars.partner] - Received request to retrieve access token for client_id #[attributes.headers.'client_id']"/>
+		<ee:transform doc:name="Prepare Java Params" doc:id="ba53335b-8e54-49fe-86a9-9091db70228c" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+	"clientId": attributes.headers.'client_id',
+	"user": p('jwt.user'),
+	"salesforceHostname": p('salesforce.https.host'),
+	"jwtKeyStore": p('jwt.keystore'),
+	"jwtKeyAlias": p('jwt.keystore.alias'),
+	"jwtKeyStorePassword": p('secure::jwt.keystore.password'),
+	"jwtKeyStoreKeyPassword": p('secure::jwt.keystore.key.password')
+}]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="clientId" ><![CDATA[%dw 2.0
+output application/java
+---
+ attributes.headers.'client_id']]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<java:invoke-static doc:name="Generate Salesforce JWT Token" doc:id="2b33187f-b013-4d4a-9ad3-a125e05fa1c1" class="com.mulesoft.salesforce.JWTToken" method="generateToken(Map)">
+			<java:args ><![CDATA[#[{"arg0" : payload}]]]></java:args>
+		</java:invoke-static>
+		<flow-ref doc:name="sf-salesforce:get-salesforce-access-token" doc:id="c9196de9-bb65-4790-acd7-8fbb307a126d" name="sf-salesforce:get-salesforce-access-token"/>
+		<ee:transform doc:name="Map JSON Response" doc:id="3466b03a-e60a-4ff0-823d-424afb6b08fa" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+  "accessToken": payload.access_token,
+  "scope": payload.scope,
+  "instanceURL": payload.instance_url,
+  "id": payload.id,
+  "tokenType": payload.token_type
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Log End" doc:id="0770b90e-fed0-468e-a9c2-8dcf32dfb62b" message="#[vars.correlationId] - #[vars.partner] - Access token for client_id #[vars.clientId] retrieved successfully"/>
+		<error-handler ref="REST_Error_Handler"/> 
+	</flow>
+</mule>
