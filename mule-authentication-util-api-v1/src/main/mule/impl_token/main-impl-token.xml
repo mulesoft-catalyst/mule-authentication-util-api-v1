@@ -6,7 +6,7 @@
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
 http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
 	<flow name="main-impl-token:get-oauth2-token" doc:id="7e979d11-eb8a-49de-8231-329ef3b5240e" >
-		<logger level="INFO" doc:name="Log Start" doc:id="15973d07-b782-4b28-9481-5167ca05bcf8" message="#[vars.correlationId] - #[vars.partner] - Received request to retrieve access token for client_id #[attributes.headers.'client_id']"/>
+		<logger level="INFO" doc:name="Log Start" doc:id="15973d07-b782-4b28-9481-5167ca05bcf8" message="#[vars.correlationId] - Received request to retrieve access token for client_id #[attributes.headers.'client_id']"/>
 		<ee:transform doc:name="Prepare Java Params" doc:id="ba53335b-8e54-49fe-86a9-9091db70228c" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
@@ -47,7 +47,7 @@ output application/json
 }]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
-		<logger level="INFO" doc:name="Log End" doc:id="0770b90e-fed0-468e-a9c2-8dcf32dfb62b" message="#[vars.correlationId] - #[vars.partner] - Access token for client_id #[vars.clientId] retrieved successfully"/>
+		<logger level="INFO" doc:name="Log End" doc:id="0770b90e-fed0-468e-a9c2-8dcf32dfb62b" message="#[vars.correlationId] - Access token for client_id #[vars.clientId] retrieved successfully"/>
 		<error-handler ref="REST_Error_Handler"/> 
 	</flow>
 </mule>
