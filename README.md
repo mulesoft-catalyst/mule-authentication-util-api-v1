@@ -14,7 +14,7 @@ However, the grant type "client_credentials" is currently NOT supported by Sales
 
 # Solution Overview
 
-Please refer to the following article in Catalyst that explains how this API works within the overall solution: https://wiki.corp.mulesoft.com/pages/viewpage.action?pageId=67707707
+Please refer to the article "Enable Open ID Connect Using Grant Type client_crendentials with MuleSoft and Salesforce as IDP" in Catalyst Knowledge Hub (https://catalyst.mulesoft.com) that explains how this API works within the overall solution.
 
 # Setup
 
