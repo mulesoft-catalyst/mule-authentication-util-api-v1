@@ -36,15 +36,15 @@ The Global configuration elements are in the global/config.xml file. The "enc.ke
 
 The property files are present under the src/main/resources/properties folder. Change all the properties with value "changeit" with the proper value. Two important main properties are:
 
-  4.1. authentication.api.id: this must contain the API Autodiscovery ID configured in step 2 above
-  4.2. jwt.user, jwt.keystore, jwt.keystore.alias, etc.: those properties are related to the Salesforce user for the connected app and keystore containing the certificate configured in Salesforce to sign the JWT. You must copy the key store under the src/main/resources/keystores/salesforce folder in order to work
+  * authentication.api.id: this must contain the API Autodiscovery ID configured in step 2 above
+  * jwt.user, jwt.keystore, jwt.keystore.alias, etc.: those properties are related to the Salesforce user for the connected app and keystore containing the certificate configured in Salesforce to sign the JWT. You must copy the key store under the src/main/resources/keystores/salesforce folder in order to work
 
 5. Encrypt the properties in the property files
 
 Once a key/algorithm has been chosen, the following properties will need to be encrypted in the properties file:
 
-  5.1. https.keystore.password: this is the keystore used to enable SSL in CloudHub for port 8082 
-  5.2. jwt.keystore.password and keystore.key.password: those properties are related to the key store and key passord for the Salesforce certificate
+  * https.keystore.password: this is the keystore used to enable SSL in CloudHub for port 8082 
+  * jwt.keystore.password and keystore.key.password: those properties are related to the key store and key passord for the Salesforce certificate
 
 
 # Author
